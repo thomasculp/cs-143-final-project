@@ -13,23 +13,24 @@
 
 \title{Ideal 5G AP Placement Given Current Harvard Router Placement}
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address}
+\author{\IEEEauthorblockN{Mary Gao}
+marygao@college.harvard.edu}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address}
+\IEEEauthorblockN{Thomas Culp}
+culp@college.harvard.edu}
 }
 
 \maketitle
 
 \begin{abstract}
-Motivated by using existing infrastructure from institutional WiFi routers to reduce costs of the eventual installation of 5G access points, fixed placement of 5G APs is contrasted with dynamic, algorithmic placement. Goodness of placement is measured by mean throughput and bandwidth in a room with typical dimensions and population scenarios as would be expected in a Harvard dining hall. 
+Motivated by using existing infrastructure from institutional WiFi routers to
+reduce costs of the eventual installation of 5G access points, fixed placement
+of 5G APs is contrasted with dynamic, algorithmic placement. Goodness of
+placement is measured by mean throughput and bandwidth in a room with typical
+dimensions and population scenarios as would be expected in a Harvard dining
+hall. Dynamic placement is found to have notable improvement over fixed AP
+placement and may be an alternative to a large number of fixed 5G APs to
+maintain coverage similar to that of WiFi.
 \end{abstract}
 
 %\begin{IEEEkeywords}
@@ -40,17 +41,57 @@ Motivated by using existing infrastructure from institutional WiFi routers to re
 This document is a model and instructions for \LaTeX.
 Please observe the conference page limits. 
 
-\section{Ease of Use}
+\section{Simulation}
 
-\subsection{Maintaining the Integrity of the Specifications}
+To determine the maximum performance of dynamic placement of APs, various
+population density scenarios typical of the usage of a Harvard dining hall were
+simulated. Two-dimensional matrices $P_{ij}$ were created which give the number
+of internet-enabled devices connected to APs. The indices of this matrix
+correspond to the spatial layout of the dining hall. That is, $(i, j)$
+are discrete coordinates which give a location on a grid which corresponds to a
+physical place in a room. The scenarios which $P_{ij}$ are
+modeled after can be categorized as \textit{office hours, random clusters, and
+future usage} (see \ref{grid}).
 
-The IEEEtran class file is used to format your paper and style the text. All margins, 
-column widths, line spaces, and text fonts are prescribed; please do not 
-alter them. You may note peculiarities. For example, the head margin
-measures proportionately more than is customary. This measurement 
-and others are deliberate, using specifications that anticipate your paper 
-as one part of the entire proceedings, and not as an independent document. 
-Please do not revise any of the current designations.
+\textbf{TODO}: adequate descriptions of these scenarios\dots
+
+Now, the task is to find the best discrete coordinates $C = \{(x_1, y_1), \dots,
+(x_n, y_n)\}$ on the room's grid for $n$ routers to optimize mean power or mean
+throughput for the devices in $P_{ij}$. Mean power is the mean over the set of
+maximum power each device in $P_{ij}$ receives from any router. Mean throughput
+is the mean over the set of throughputs each device in $P_{ij}$ receives, and
+each router gives throughput $T_{max} / m$ to each device connected to it, where
+$T_{max}$ is a constant maximum throughput which is set to be equal across all
+routers in the simulation and $m$ is the number of devices for which this router
+is providing the maximum signal strength (i.e. $m$ devices have chosen to
+connect to this router because they have the strongest connection to it out of
+all the other routers). Power is modeled by the Friis transmission equation,
+
+\[p_r = p_t + d_r + d_t + 20\log_{10}(\frac{\lambda}{4\pi d})\]
+
+where $p_r$ is power received, $p_t$ is power transmitted, $d_{r(t)}$ is the
+isotropic directivity of the receiver (transmitter), $\lambda$ is the
+wavelength of the signal, and $d$ is the distance between the receiver and
+transmitter. Thus, the only consideration for power here is free-space
+transmission.
+
+The optimal choice of $C$ is determined by the following algorithm:
+
+\textbf{TODO}: write up the algorithm used, which may change a little with time.
+
+The algorithm can be qualitatively described as \dots.
+
+\begin{figure}[htbp]
+  \centerline{\includegraphics{grid.png}}
+  \caption{Population matrix which is a discrete function of space and examples
+  of population scenarios.}
+  \label{grid}
+\end{figure}
+
+\section{Results}
+
+\section{Conclusion}
+
 
 \section{Prepare Your Paper Before Styling}
 Before you begin to format your paper, first write and save the content as a 
@@ -186,12 +227,6 @@ with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization
 quantities and units. For example, write ``Temperature (K)'', not 
 ``Temperature/K''.
 
-\section*{Acknowledgment}
-
-The preferred spelling of the word ``acknowledgment'' in America is without 
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
-acknowledgments in the unnumbered footnote on the first page.
 
 \section*{References}
 
@@ -223,8 +258,5 @@ citation first, followed by the original foreign-language citation \cite{b6}.
 \bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
 \bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
 \end{thebibliography}
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
 
 \end{document}
