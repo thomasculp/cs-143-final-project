@@ -14,10 +14,10 @@
 \title{Ideal 5G AP Placement Given Current Harvard Router Placement}
 
 \author{\IEEEauthorblockN{Mary Gao}
-marygao@college.harvard.edu}
+\IEEEauthorblockA{marygao@college.harvard.edu}
 \and
 \IEEEauthorblockN{Thomas Culp}
-culp@college.harvard.edu}
+\IEEEauthorblockA{culp@college.harvard.edu}
 }
 
 \maketitle
@@ -38,8 +38,8 @@ maintain coverage similar to that of WiFi.
 %\end{IEEEkeywords}
 
 \section{Introduction}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
+Motivation for the task at hand. A lot of the information from the slide notes can be used here and citations can be added to the bibliography. That material is reproduced here:
+According to a 2018 Cisco foreceast, busy hour internet traffic will increase by 5 fold between 2017 and 2022, mobile data traffic will incresae 7 fold, and the number of devices per person will be 3.6 per capita globally, VR/AR traffic will incresae 12 fold
 
 \section{Simulation}
 
@@ -49,9 +49,10 @@ simulated. Two-dimensional matrices $P_{ij}$ were created which give the number
 of internet-enabled devices connected to APs. The indices of this matrix
 correspond to the spatial layout of the dining hall. That is, $(i, j)$
 are discrete coordinates which give a location on a grid which corresponds to a
-physical place in a room. The scenarios which $P_{ij}$ are
+physical place in a room and $P_{ij}$ gives the number of devices at that point
+in the grid. The scenarios which $P_{ij}$ are
 modeled after can be categorized as \textit{office hours, random clusters, and
-future usage} (see \ref{grid}).
+future usage} (see Fig. \ref{grid}).
 
 \textbf{TODO}: adequate descriptions of these scenarios\dots
 
@@ -59,13 +60,13 @@ Now, the task is to find the best discrete coordinates $C = \{(x_1, y_1), \dots,
 (x_n, y_n)\}$ on the room's grid for $n$ routers to optimize mean power or mean
 throughput for the devices in $P_{ij}$. Mean power is the mean over the set of
 maximum power each device in $P_{ij}$ receives from any router. Mean throughput
-is the mean over the set of throughputs each device in $P_{ij}$ receives, and
-each router gives throughput $T_{max} / m$ to each device connected to it, where
+is the mean over the set of throughputs each device in $P_{ij}$ receives. 
+Each router gives throughput $T_{max} / m$ to each device connected to it, where
 $T_{max}$ is a constant maximum throughput which is set to be equal across all
 routers in the simulation and $m$ is the number of devices for which this router
 is providing the maximum signal strength (i.e. $m$ devices have chosen to
 connect to this router because they have the strongest connection to it out of
-all the other routers). Power is modeled by the Friis transmission equation,
+all the $n$ routers). Power is modeled by the Friis transmission equation,
 
 \[p_r = p_t + d_r + d_t + 20\log_{10}(\frac{\lambda}{4\pi d})\]
 
