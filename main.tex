@@ -74,11 +74,29 @@ where $p_r$ is power received, $p_t$ is power transmitted, $d_{r(t)}$ is the
 isotropic directivity of the receiver (transmitter), $\lambda$ is the
 wavelength of the signal, and $d$ is the distance between the receiver and
 transmitter. Thus, the only consideration for power here is free-space
-transmission.
+transmission; absorption, reflection, and any interference is ignored in this
+analysis.
 
 The optimal choice of $C$ is determined by the following algorithm:
 
-\textbf{TODO}: write up the algorithm used, which may change a little with time.
+\begin{algorithm}[H]
+  \caption{$placement(P_{ij}, n, metric, attempts)$}
+  \textbf{Require}: $maximize$, a function which takes a $metric$, population
+  density, and initial guess for coordinates of a router $C$, and maximizes the
+  metric locally (\texttt{scipy.optimize.minimize} was used for this purpose)
+  \begin{algorithmic}[1]
+    \State $maxima[attempts]$ is an array containing the local maxima where
+    $|maxima| = attempts$
+    \For{$i=1\dots attempts$}
+      \State $C[n]$ is the coordinates array for the router, where $|C| = n$
+      \For{$j=1\dots n$}
+        \State $C[j] \gets$ (random(1, $M$), random(1, $N$))
+      \EndFor
+      \State $maxima[i] \gets maximize(P, C, metric)$
+    \EndFor
+    \State \textbf{return} $max(maxima)$
+  \end{algorithmic}
+\end{algorithm}
 
 The algorithm can be qualitatively described as \dots.
 
