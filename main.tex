@@ -3,7 +3,8 @@
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
@@ -38,14 +39,25 @@ maintain coverage similar to that of WiFi.
 %\end{IEEEkeywords}
 
 \section{Introduction}
-Motivation for the task at hand. A lot of the information from the slide notes can be used here and citations can be added to the bibliography. That material is reproduced here:
-According to a 2018 Cisco foreceast, busy hour internet traffic will increase by 5 fold between 2017 and 2022, mobile data traffic will incresae 7 fold, and the number of devices per person will be 3.6 per capita globally, VR/AR traffic will incresae 12 fold
+We are interested in realizing a 5G network at Harvard that can handle increasing bandwidth needs. If 5G access points were located at the current WiFi routers at Harvard, how far is this from optimal? An optimal 5G AP placement algorithm is needed to compare coverage given 5G access points in differing arrangements. 
+    
+Bandwidth demands continue to increase as the number of devices, the amount of data, and the demands of applications increase. According to a 2018 Cisco forecast, busy hour internet traffic will increase 5 fold between 2017 and 2022, mobile data traffic will increase 7 fold, and VR/AR traffic will increase 12 fold \cite{b1}. Increasing bandwidth demands drives the need for a 5G network. The implementation will require optimizing access point placement given real-world constraints.
+    
+The goal of this paper is to find optimal 5G AP placement that maximizes the evaluation metrics being  mean power and mean throughput. The approach is to run simulations based on a Harvard dining hall to determine optimal performance given varying scenarios. 
+
+\section{Related Work}
+	
+Researchers have previously presented measured or theoretical link budget data and throughput for the 60-GHz band, including \cite{b2}, \cite{b3}, and \cite{b4}. Indoor propagation and parameters that affect propagation for the 60-GHz band have also been researched, including \cite{b5} and \cite{b6}. The 60-GHz radio channel represents a possibility for providing multigigabit per second wireless data transfers as required for 5G communication. 
+	
+In \cite{b7}, an optimization model is proposed to maximize the
+sum of Euclidean distance of RSS vector among reference
+points (RPs) within a limited area. In \cite{b8}, an indoor map system adoping vector graphic technology is used along with an opimtization model. Our contribution lies in an optimal placement algorithm for 5G AP placement as opposed to WiFi AP placement. 
 
 \section{Simulation}
 
 To determine the maximum performance of dynamic placement of APs, various
 population density scenarios typical of the usage of a Harvard dining hall were
-simulated. Two-dimensional matrices $P_{ij}$ were created which give the number
+simulated. Two-dimensional $M\times N$ matrices $P_{ij}$ were created which give the number
 of internet-enabled devices connected to APs. The indices of this matrix
 correspond to the spatial layout of the dining hall. That is, $(i, j)$
 are discrete coordinates which give a location on a grid which corresponds to a
@@ -54,7 +66,7 @@ in the grid. The scenarios which $P_{ij}$ are
 modeled after can be categorized as \textit{office hours, random clusters, and
 future usage} (see Fig. \ref{grid}).
 
-\textbf{TODO}: adequate descriptions of these scenarios\dots
+In the office hours scenario, one row of the matrix represented a large number of devices while the other rows were randomly generated at a lower bound. This is because during office hours at Kirkland dining hall, teaching fellows sit at one strip of tables so a large amount of students using devices congregate at those tables. In the random clusters scenario, each point on the grid was a randomly generated integer between 0 and 8, which is takes into account how many people fit around the different sized tables in the dining hall. In the future usage scenario, each point was a randomly generated number between 8 and 45, to represent a high-bandwidth scenario with 5 times the demand. 
 
 Now, the task is to find the best discrete coordinates $C = \{(x_1, y_1), \dots,
 (x_n, y_n)\}$ on the room's grid for $n$ routers to optimize mean power or mean
@@ -67,9 +79,7 @@ routers in the simulation and $m$ is the number of devices for which this router
 is providing the maximum signal strength (i.e. $m$ devices have chosen to
 connect to this router because they have the strongest connection to it out of
 all the $n$ routers). Power is modeled by the Friis transmission equation,
-
 \[p_r = p_t + d_r + d_t + 20\log_{10}(\frac{\lambda}{4\pi d})\]
-
 where $p_r$ is power received, $p_t$ is power transmitted, $d_{r(t)}$ is the
 isotropic directivity of the receiver (transmitter), $\lambda$ is the
 wavelength of the signal, and $d$ is the distance between the receiver and
@@ -88,7 +98,7 @@ The optimal choice of $C$ is determined by the following algorithm:
     \State $maxima[attempts]$ is an array containing the local maxima where
     $|maxima| = attempts$
     \For{$i=1\dots attempts$}
-      \State $C[n]$ is the coordinates array for the router, where $|C| = n$
+      \State $C[n]$ is the coordinates array for the routers, where $|C| = n$
       \For{$j=1\dots n$}
         \State $C[j] \gets$ (random(1, $M$), random(1, $N$))
       \EndFor
@@ -98,8 +108,51 @@ The optimal choice of $C$ is determined by the following algorithm:
   \end{algorithmic}
 \end{algorithm}
 
-The algorithm can be qualitatively described as \dots.
+The algorithm can be qualitatively described as choosing $attempts$ starting points randomly on the grid for the $n$ routers, using a maximization function to find a local maximum of $metric$ from those points, and then taking the maximum across the $attempts$ local maxima found. This is an approximation algorithm which ideally returns nearly the coordinates of the routers which maximize $metric$.
 
+The metrics which can stand in for $metric$ are as follows:
+
+\begin{algorithm}[H]
+    \textbf{Require}: $\forall device \in P$, $device.power = -\inf$.
+    \caption{$power(P_{ij}, C)$}
+    \begin{algorithmic}[1]
+        \For{$i=1\dots M, j=1\dots N$}
+            \For{$c \in C$}
+                \State $p \gets \log_{10}{\frac{1}{|c - (i, j)|}}$
+                \If{$p > device.power, device \in P_{ij}$}
+                    \State $\forall device \in P_{ij}$, $device.power \gets p$
+                \EndIf
+            \EndFor 
+        \EndFor
+        \State \textbf{return} mean($\{device.power \mid device \in P\}$)
+    \end{algorithmic}
+\end{algorithm}
+In $power$, the mean power over all devices in $P$ is returned, where the power is proportional to the log distance between the device at $(i, j)$ and the nearest router.
+
+\begin{algorithm}[H]
+    \textbf{Require}: $\forall device \in P$, $device.power = -\inf$. $\forall c \in C, c.count = 0$
+    \caption{$throughput(P_{ij}, C)$}
+    \begin{algorithmic}[1]
+        \For{$i=1\dots M, j=1\dots N$}
+            \For{$c \in C$}
+                \State $p \gets \log_{10}{\frac{1}{|c - (i, j)|}}$
+                \If{$p > device.power, device \in P_{ij}$}
+                    \State $\forall device \in P_{ij}$, $device.power \gets p$
+                    \State $\forall device \in P_{ij}$, $device.c \gets c$
+                \EndIf
+            \EndFor 
+        \EndFor
+        \For{$device \in P$}
+            \State $device.c.count \gets device.c.count + 1$
+        \EndFor
+        \For{$c \in C$}
+            \State $c.bandwidth \gets 1 / c.count$
+        \EndFor
+        \State \textbf{return} mean($\{device.c.bandwidth \mid device \in P\}$)
+    \end{algorithmic}
+\end{algorithm}
+In $throughput$, each device connects to the router which it is nearest to. Then, the routers count their connections and the bandwidth they provide to their connections is the reciprocal of the number of connections (that is, their total bandwidth is set to unity for simplicity). Finally, the mean throughput is returned, which is the mean over the throughputs each device in $P$ receives.
+                
 \begin{figure}[htbp]
   \centerline{\includegraphics{grid.png}}
   \caption{Population matrix which is a discrete function of space and examples
@@ -230,12 +283,6 @@ copy& More table copy$^{\mathrm{a}}$& &  \\
 \end{center}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics{fig1.png}}
-\caption{Example of a figure caption.}
-\label{fig}
-\end{figure}
-
 Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
 rather than symbols or abbreviations when writing Figure axis labels to 
 avoid confusing the reader. As an example, write the quantity 
@@ -269,13 +316,19 @@ For papers published in translation journals, please give the English
 citation first, followed by the original foreign-language citation \cite{b6}.
 
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
+\bibitem{b1}  "Cisco Visual Networking Index: Forecast and Trends, 2017–2022 - Cisco." 26 Nov. 2018,https://www.cisco.com/c/en/us/solutions/collateral/
+service-provider/visual-networking-index-vni/white-paper-c11-741490.html. Accessed 9 Dec. 2018.
+\bibitem{b2} H. Yang, P. F. M. Smulders, and M. H. A. J. Herben, BChannel characteristics and transmission performance for various channel configurations at 60 GHz,[ EURASIPJ. Wireless Commun. Netw., Jan. 2007, DOI: 10.1155/2007/19613, Article ID 19613.
+\bibitem{b3} S. K. Yong and C.-C. Chong, BAn overview of multigigabit wireless through millimeter wave technology: Potentials and technical challenges,[ EURASIP J. Wireless Commun. Netw., Jan. 2007, DOI: 10.1155/2007/78907,
+Article ID 78907.
+\bibitem{b4} A. Plattner, N. Prediger, and W. Herzig, BIndoor and outdoor propagation measurements at 5 and 60 GHz for radio LAN application,[ in Proc. IEEE MTT-S Int. Microw. Symp., 1993, vol. 2, pp. 853–856, DOI: 10.1109/MWSYM.1993. 277020. [Online]. Available: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=
+\&arnumber=277020\&isnumber=6842.
+\bibitem{b5} T. Manabe, Y. Miura, and T. Ihara.(1996, Apr.). BEffects of antenna directivity and polarization on indoor multipath propagation characteristics at 60 GHz.[ IEEE J. Sel. Areas Commun., DOI: 10.1109/49. 490229. [Online]. 14(3), pp. 441–448. Available: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=
+\&arnumber=490229\&isnumber=10455
+\bibitem{b6} C. R. Anderson and T. S. Rappaport. (2004, May). BIn-building wideband partition loss measurements at 2.5 and 60 GHz.[ IEEE Trans. Wireless Commun., DOI: 10.1109/TWC.2004.826328. [Online]. 3(3), pp. 922–928. Available: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=\&arnumber=1296643
+\&isnumber=28829
+\bibitem{b7} Y. Zhao, H. Zhou, and M. Li, “Indoor access points location optimization using differential evolution,” in Proc. IEEE Int. Conf. Comput. Sci. Softw.Eng., 2008, pp. 382–385.
+\bibitem{b8} Du, Xuan \& Yang, Kun. (2016). A Map-Assisted WiFi AP Placement Algorithm Enabling Mobile Device’s Indoor Positioning. IEEE Systems Journal. PP. 1-9. 10.1109/JSYST.2016.2525814. 
 \end{thebibliography}
 
 \end{document}
